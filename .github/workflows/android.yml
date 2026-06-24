@@ -1,0 +1,76 @@
+name: Android
+
+on:
+  push:
+    branches: [ main, master ]
+    paths:
+      - 'Source/**'
+      - 'export/**'
+      - 'RNBOSynth.jucer'
+      - '.github/workflows/android.yml'
+  workflow_dispatch:
+
+jobs:
+  android-apk:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      # JUCE : on le clone à un chemin fixe (le .jucer pointe vers JUCE/modules)
+      - name: Clone JUCE
+        run: git clone --depth 1 --branch 8.0.4 https://github.com/juce-framework/JUCE.git JUCE
+
+      # Dépendances Linux nécessaires pour COMPILER le Projucer (app GUI)
+      - name: Install Projucer build deps
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libasound2-dev libjack-jackd2-dev libcurl4-openssl-dev \
+            libfreetype-dev libx11-dev libxcomposite-dev libxcursor-dev \
+            libxext-dev libxinerama-dev libxrandr-dev libxrender-dev \
+            libwebkit2gtk-4.1-dev libglu1-mesa-dev mesa-common-dev \
+            libgtk-3-dev
+
+      - name: Build Projucer
+        run: |
+          cmake -B JUCE/build -S JUCE -DCMAKE_BUILD_TYPE=Release -DJUCE_BUILD_EXTRAS=ON
+          cmake --build JUCE/build --target Projucer --parallel
+
+      - name: Locate Projucer
+        id: projucer
+        run: |
+          PJ=$(find JUCE/build -type f -name Projucer | head -1)
+          echo "Projucer = $PJ"
+          echo "path=$PJ" >> "$GITHUB_OUTPUT"
+
+      - name: Generate Android project (resave .jucer)
+        run: "${{ steps.projucer.outputs.path }}" --resave RNBOSynth.jucer
+
+      - name: Build APK (debug)
+        run: |
+          cd Builds/Android
+          chmod +x gradlew
+          ./gradlew assembleDebug --no-daemon
+
+      - name: Locate APK
+        id: apk
+        run: |
+          APK=$(find Builds/Android -name "*-debug.apk" | head -1)
+          echo "APK = $APK"
+          echo "path=$APK" >> "$GITHUB_OUTPUT"
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: RNBO-Synth-Android
+          path: ${{ steps.apk.outputs.path }}
