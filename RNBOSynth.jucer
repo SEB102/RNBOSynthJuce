@@ -4,7 +4,7 @@
               useAppConfig="0" addUsingNamespaceToJuceHeader="0" jucerFormatVersion="1"
               companyName="SebGay" bundleIdentifier="com.sebgay.rnbosynth"
               cppLanguageStandard="17" version="1.0.0"
-              headerPath="export&#10;export/rnbo&#10;export/rnbo/common&#10;export/rnbo/src">
+              headerPath="../../export&#10;../../export/rnbo&#10;../../export/rnbo/common&#10;../../export/rnbo/src">
   <MAINGROUP id="MainGrp" name="RNBO Synth">
     <GROUP id="SrcGrp" name="Source">
       <FILE id="MainCpp" name="Main.cpp" compile="1" resource="0" file="Source/Main.cpp"/>
@@ -22,7 +22,6 @@
   <EXPORTFORMATS>
     <ANDROIDSTUDIO targetFolder="Builds/Android" androidMinimumSDK="24"
                    androidTargetSDK="34"
-                   headerPath="../../../export&#10;../../../export/rnbo&#10;../../../export/rnbo/common&#10;../../../export/rnbo/src"
                    androidOboe="1" androidInternetNeeded="0" androidMicNeeded="0">
       <CONFIGURATIONS>
         <CONFIGURATION isDebug="1" name="Debug"/>
