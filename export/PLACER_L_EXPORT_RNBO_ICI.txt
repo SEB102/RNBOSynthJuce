@@ -1,0 +1,16 @@
+Ce dossier doit recevoir l'export C++ de RNBO.
+
+Depuis RNBO (dans Max 9) :
+  1. Ouvre  patch/SimpleSynth.rnbopat
+  2. Onglet "Export"  ->  "C++ Source Code Export"
+  3. Choisis CE dossier ("export") comme destination
+  4. COCHE bien l'option "Export RNBO C++ Library"
+  5. Exporte.
+
+Tu dois alors obtenir au minimum :
+  export/rnbo_source.cpp
+  export/rnbo/RNBO.h
+  export/rnbo/...   (le reste de la librairie RNBO)
+
+Tant que rnbo_source.cpp n'est pas là, CMake s'arrêtera avec un message
+d'erreur explicite. Voir README.md.

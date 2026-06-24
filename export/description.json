@@ -1,0 +1,37 @@
+{
+  "parameters": [],
+  "numParameters": 0,
+  "numSignalInParameters": 0,
+  "numSignalOutParameters": 0,
+  "numInputChannels": 0,
+  "numOutputChannels": 1,
+  "numMidiInputPorts": 1,
+  "numMidiOutputPorts": 0,
+  "transportUsed": false,
+  "externalDataRefs": [],
+  "patcherSerial": 0,
+  "inports": [],
+  "outports": [],
+  "inlets": [
+    {
+      "type": "midi"
+    }
+  ],
+  "outlets": [
+    {
+      "type": "signal",
+      "index": 1,
+      "tag": "out1",
+      "meta": ""
+    }
+  ],
+  "presetid": "rnbo",
+  "meta": {
+    "architecture": "x64",
+    "filename": "TESTRNBO.maxpat",
+    "rnboobjname": "rnbomatic",
+    "maxversion": "9.1.4",
+    "rnboversion": "1.4.4",
+    "name": "/Users/macdeseb/Desktop/RNBOSynthJuce/patch/SimpleSynth.rnbopat"
+  }
+}

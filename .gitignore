@@ -1,0 +1,12 @@
+# Dossiers de build CMake
+build/
+build-*/
+cmake-build-*/
+
+# macOS
+.DS_Store
+
+# IDE
+.vscode/
+.idea/
+*.user
