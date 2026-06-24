@@ -67,21 +67,29 @@ jobs:
             -keyalg RSA -keysize 2048 -validity 10000 \
             -dname "CN=Android Debug,O=Android,C=US"
 
-      - name: Build APK (debug)
+      - name: Build APK (release, optimisé)
         run: |
           cd Builds/Android
           chmod +x gradlew
-          ./gradlew assembleDebug --no-daemon
+          ./gradlew assembleRelease --no-daemon
 
-      - name: Locate APK
-        id: apk
+      - name: Align & sign release APK
         run: |
-          APK=$(find Builds/Android -name "*-debug.apk" | head -1)
-          echo "APK = $APK"
-          echo "path=$APK" >> "$GITHUB_OUTPUT"
+          BT=$(ls -d "$ANDROID_HOME"/build-tools/* | sort -V | tail -1)
+          echo "build-tools: $BT"
+          RAW=$(find Builds/Android -name "*-release*.apk" | head -1)
+          echo "APK brut: $RAW"
+          "$BT/zipalign" -f -p 4 "$RAW" aligned.apk
+          "$BT/apksigner" sign \
+            --ks ~/.android/debug.keystore \
+            --ks-pass pass:android --key-pass pass:android \
+            --ks-key-alias androiddebugkey \
+            --out RNBO-Synth-release.apk aligned.apk
+          "$BT/apksigner" verify -v RNBO-Synth-release.apk
+          ls -lh RNBO-Synth-release.apk
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: RNBO-Synth-Android
-          path: ${{ steps.apk.outputs.path }}
+          path: RNBO-Synth-release.apk
