@@ -1,0 +1,50 @@
+name: iOS
+
+# Produit un .ipa NON SIGNÉ, à installer via SideStore / AltStore / Sideloadly
+# (chaque utilisateur le re-signe avec son propre identifiant Apple, gratuit).
+on:
+  push:
+    branches: [ main, master ]
+    paths:
+      - 'Source/**'
+      - 'export/**'
+      - 'CMakeLists.txt'
+      - '.github/workflows/ios.yml'
+  workflow_dispatch:
+
+jobs:
+  ios-ipa:
+    runs-on: macos-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure (iOS, générateur Xcode)
+        run: >
+          cmake -B build-ios -G Xcode
+          -DCMAKE_SYSTEM_NAME=iOS
+          -DCMAKE_OSX_DEPLOYMENT_TARGET=14.0
+          -DCMAKE_OSX_ARCHITECTURES=arm64
+
+      - name: Build (sans signature)
+        run: >
+          cmake --build build-ios --config Release --
+          -sdk iphoneos
+          CODE_SIGNING_ALLOWED=NO
+          CODE_SIGNING_REQUIRED=NO
+          CODE_SIGN_IDENTITY=""
+
+      - name: Package .ipa (non signé)
+        run: |
+          APP=$(find build-ios -name "RNBO Synth.app" -type d | head -1)
+          echo "App trouvée : $APP"
+          rm -rf Payload
+          mkdir -p Payload
+          cp -R "$APP" Payload/
+          zip -r -y "RNBO-Synth-unsigned.ipa" Payload
+
+      - name: Upload .ipa
+        uses: actions/upload-artifact@v4
+        with:
+          name: RNBO-Synth-iOS-unsigned-ipa
+          path: RNBO-Synth-unsigned.ipa
