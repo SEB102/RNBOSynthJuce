@@ -1,0 +1,56 @@
+name: Build
+
+# Compile l'app sur de vraies VM Windows et macOS, puis publie les binaires
+# téléchargeables dans l'onglet "Actions" du dépôt (artifacts).
+on:
+  push:
+    branches: [ main, master ]
+  workflow_dispatch:   # permet aussi de lancer le build à la main
+
+jobs:
+  build:
+    name: ${{ matrix.name }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            name: Windows
+            cmake_args: ""
+          - os: macos-latest
+            name: macOS
+            cmake_args: '-DCMAKE_OSX_ARCHITECTURES="arm64;x86_64"'
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure (CMake récupère JUCE automatiquement)
+        run: cmake -B build -DCMAKE_BUILD_TYPE=Release ${{ matrix.cmake_args }}
+
+      - name: Build
+        run: cmake --build build --config Release --parallel
+
+      # --- Windows : un simple .exe ---
+      - name: Upload Windows (.exe)
+        if: runner.os == 'Windows'
+        uses: actions/upload-artifact@v4
+        with:
+          name: RNBO-Synth-Windows
+          path: build/RNBOSynthJuce_artefacts/Release/RNBO Synth.exe
+
+      # --- macOS : on zippe le .app avec ditto pour préserver les permissions
+      #     (les artifacts GitHub perdraient sinon le bit exécutable du bundle) ---
+      - name: Package macOS (.app -> .zip)
+        if: runner.os == 'macOS'
+        run: |
+          cd "build/RNBOSynthJuce_artefacts/Release"
+          ditto -c -k --sequesterRsrc --keepParent "RNBO Synth.app" "$GITHUB_WORKSPACE/RNBO-Synth-macOS.zip"
+
+      - name: Upload macOS (.app)
+        if: runner.os == 'macOS'
+        uses: actions/upload-artifact@v4
+        with:
+          name: RNBO-Synth-macOS
+          path: RNBO-Synth-macOS.zip
