@@ -54,7 +54,8 @@ jobs:
           echo "path=$PJ" >> "$GITHUB_OUTPUT"
 
       - name: Generate Android project (resave .jucer)
-        run: "${{ steps.projucer.outputs.path }}" --resave RNBOSynth.jucer
+        run: |
+          "${{ steps.projucer.outputs.path }}" --resave RNBOSynth.jucer
 
       - name: Build APK (debug)
         run: |
